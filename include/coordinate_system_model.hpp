@@ -4,6 +4,7 @@
 #include <QAbstractItemModel>
 #include <QModelIndex>
 #include <QVariant>
+#include <QIcon>
 
 class CoordinateSystemItem;
 
@@ -23,6 +24,10 @@ public:
   int	columnCount(const QModelIndex & parent = QModelIndex()) const Q_DECL_OVERRIDE;
 
   CoordinateSystemItem* getItem(const QModelIndex &index) const;
+  void addItem(CoordinateSystemItem* item, CoordinateSystemItem *parentItem = 0);
+
+  bool setItemExpandedIcon(const QModelIndex &index);
+  bool setItemCollapsedIcon(const QModelIndex &index);
 
 private:
   CoordinateSystemItem *root_item_;

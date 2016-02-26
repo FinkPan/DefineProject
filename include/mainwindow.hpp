@@ -5,6 +5,8 @@
 
 #include <QMainWindow>
 
+class CoordinateSystemModel;
+
 namespace Ui
 {
 class MainWindow;
@@ -25,6 +27,8 @@ public slots:
 
 private:
   Ui::MainWindow *ui;
+  CoordinateSystemModel *coordinate_system_model_;
+
 };
 
 #endif // MAINWINDOW_H

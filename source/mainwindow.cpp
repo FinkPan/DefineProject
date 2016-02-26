@@ -18,16 +18,44 @@ QMainWindow(parent),
   connect(ui->treeView,&QTreeView::clicked,
           this,&MainWindow::SetText);
 
-  CoordinateSystemModel *coordinate_system_model = new CoordinateSystemModel;
-
   ui->treeView->header()->hide();
-  ui->treeView->setModel(coordinate_system_model);
+  ui->treeView->setStyleSheet(" \
+      QTreeView::branch:has-siblings:!adjoins-item {\
+            border-image: url(:/vline) 0;\
+    }\
+    QTreeView::branch:has-siblings:adjoins-item {\
+         border-image: url(:/branch_more) 0;\
+    }\
+    QTreeView::branch:!has-children:!has-siblings:adjoins-item {\
+          border-image: url(:/branch_end) 0;\
+    }\
+    QTreeView::branch:has-children:!has-siblings:closed,\
+    QTreeView::branch:closed:has-children:has-siblings{ \
+      border-image: none;                               \
+            image: url(:/branch_closed);                    \
+    }                                                   \
+                                                        \
+    QTreeView::branch:open:has-children:!has-siblings,  \
+    QTreeView::branch:open:has-children:has-siblings{   \
+      border-image: none;                               \
+            image: url(:/branch_open);                      \
+    }                                                   \
+    ");
+  coordinate_system_model_ = new CoordinateSystemModel;
+  ui->treeView->setModel(coordinate_system_model_);
+
+  connect(ui->treeView,&QTreeView::expanded,
+          coordinate_system_model_,&CoordinateSystemModel::setItemExpandedIcon);
+  connect(ui->treeView,&QTreeView::collapsed,
+          coordinate_system_model_,&CoordinateSystemModel::setItemCollapsedIcon);
+
 
  // ReadCoordinateSystem("gcs.csv");
 }
 
 MainWindow::~MainWindow()
 {
+  delete coordinate_system_model_;
   delete ui;
 }
 
@@ -48,16 +76,12 @@ void MainWindow::ReadCoordinateSystem(const std::string& file_path)
 void MainWindow::SetText(const QModelIndex &index)
 {
   CoordinateSystemModel *model = ( CoordinateSystemModel *)index.model();
-
-//   QVariant item = model->data(index,Qt::DisplayRole);
-
   CoordinateSystemItem *item = model->getItem(index);
   if (item->IsCoordinatieSystem())
   {
-    ui->textEdit->setText(item->data().toString());
+//     ui->textEdit->setText(item->data().toString());
+    ui->textEdit->setText(item->gcs().GCS_name_);
   }
-  
-
 
 }
 

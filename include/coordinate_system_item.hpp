@@ -3,6 +3,9 @@
 
 #include <QList>
 #include <QVariant>
+#include <QIcon>
+
+#include "geographic_coordinate_system.hpp"
 
 class CoordinateSystemItem
 {
@@ -14,7 +17,7 @@ public:
   };
 
   explicit CoordinateSystemItem(
-    const QVariant &data,CoordinateSystemItem *parentItem = 0);
+    const QVariant &data,CoordinateSystemItem *parentItem = nullptr, bool is_coordinatie_system = true);
   ~CoordinateSystemItem();
 
   void appendChild(CoordinateSystemItem *child);
@@ -25,14 +28,21 @@ public:
   QVariant data() const;
   int row() const;
   CoordinateSystemItem *parentItem();
-  void setCoordinatieSystem();
   bool IsCoordinatieSystem();
+  bool setIcon(QIcon *icon);
+  QVariant getIcon() const; 
+
+  GCS& gcs(){return gcs_;}
 
 private:
   QList<CoordinateSystemItem*> m_childItems;
   QVariant m_itemData;
   CoordinateSystemItem *m_parentItem;
   bool is_coordinatie_system_;
+  QIcon *icon_;
+  GCS gcs_;
+
+
 };
 
 #endif

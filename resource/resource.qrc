@@ -1,0 +1,12 @@
+<RCC>
+    <qresource prefix="/">
+        <file alias="branch_closed">branch_closed.png</file>
+        <file alias="branch_end">branch_end.png</file>
+        <file alias="branch_more">branch_more.png</file>
+        <file alias="branch_open">branch_open.png</file>
+        <file alias="earth">earth.png</file>
+         <file alias="vline">vline.png</file>
+         <file alias="folder_closed">folder_closed.png</file>
+         <file alias="folder_open">folder_open.png</file>
+   </qresource>
+</RCC>
