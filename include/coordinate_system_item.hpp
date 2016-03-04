@@ -5,43 +5,52 @@
 #include <QVariant>
 #include <QIcon>
 
-#include "geographic_coordinate_system.hpp"
+//#include "geographic_coordinate_system.hpp"
+//#include "projected_coordinate_system.hpp"
+#include "coordinate_system_data.hpp"
 
 class CoordinateSystemItem
 {
 public:
   enum ItemType
   {
-    FOLDER,
-    VALUE
+    FOLDER_CLOSE,
+    FOLDER_OPEN,
+    GEOGRAPHIC_COORDINATE_SYSTEM,
+    PROJECTED_COORDINATE_SYSTEM,
   };
 
   explicit CoordinateSystemItem(
-    const QVariant &data,CoordinateSystemItem *parentItem = nullptr, bool is_coordinatie_system = true);
+    QVariant item_name,
+    ItemType item_type,
+    CoordinateSystemItem *parent_item = nullptr);
   ~CoordinateSystemItem();
 
-  void appendChild(CoordinateSystemItem *child);
-
   CoordinateSystemItem *child(int row);
+
+  bool set_item_name(QVariant item_name);
+  void set_item_type(ItemType item_type);
+  void set_item_data(CoordinateSystemData* data);
+
   int childCount() const;
   int columnCount() const;
-  QVariant data() const;
   int row() const;
-  CoordinateSystemItem *parentItem();
-  bool IsCoordinatieSystem();
-  bool setIcon(QIcon *icon);
-  QVariant getIcon() const; 
+  QVariant item_name() const;
+  ItemType item_type() const;
+  int item_wkid() const;
+  CoordinateSystemItem* parent_item() const;
+  CoordinateSystemItem* child_item(int i) const;
 
-  GCS& gcs(){return gcs_;}
+  CoordinateSystemData* data() const;
 
 private:
-  QList<CoordinateSystemItem*> m_childItems;
-  QVariant m_itemData;
-  CoordinateSystemItem *m_parentItem;
-  bool is_coordinatie_system_;
-  QIcon *icon_;
-  GCS gcs_;
+  QVariant item_name_;
+  ItemType item_type_;
 
+  QList<CoordinateSystemItem*> child_items_;
+  CoordinateSystemItem *parent_item_;
+
+  CoordinateSystemData* data_;
 
 };
 

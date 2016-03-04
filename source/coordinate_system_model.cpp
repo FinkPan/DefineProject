@@ -1,35 +1,24 @@
 ﻿#include "coordinate_system_model.hpp"
 #include "coordinate_system_item.hpp"
+#include "read_write_file.hpp"
 
 CoordinateSystemModel::CoordinateSystemModel(QObject *parent)
   : QAbstractItemModel(parent)
 {
-  root_item_ = new CoordinateSystemItem("root");
-  CoordinateSystemItem *test1 = new CoordinateSystemItem(tr("Geographic Coordinate Systems"),root_item_,false);
-  CoordinateSystemItem *test2 = new CoordinateSystemItem(tr("Projected Coordinate Systems"),root_item_,false);
-  CoordinateSystemItem *test3 = new CoordinateSystemItem("Asia",test1,false);
-  CoordinateSystemItem *test4 = new CoordinateSystemItem("Beijing 1954",test3);
-  CoordinateSystemItem *test5 = new CoordinateSystemItem("China_Geodetic_Coordinate_System_2000",test3);
-  CoordinateSystemItem *test6 = new CoordinateSystemItem("Gauss_Kruger",test2,false);
-  CoordinateSystemItem *test7 = new CoordinateSystemItem("Beijing 1954",test6,false);
-  CoordinateSystemItem *test8 = new CoordinateSystemItem("CGCS2000",test6,false);
-  CoordinateSystemItem *test9 = new CoordinateSystemItem("Beijing_1954_3_Degree_GK_CM_105E",test7);
-  CoordinateSystemItem *test10 = new CoordinateSystemItem("Beijing_1954_3_Degree_GK_CM_108E",test7);
-  CoordinateSystemItem *test11 = new CoordinateSystemItem("Beijing_1954_3_Degree_GK_CM_111E",test7);
-  CoordinateSystemItem *test12 = new CoordinateSystemItem("Beijing_1954_3_Degree_GK_CM_114E",test7);
-  CoordinateSystemItem *test13 = new CoordinateSystemItem("CGCS2000_3_Degree_GK_CM_105E",test8);
-  CoordinateSystemItem *test14 = new CoordinateSystemItem("CGCS2000_3_Degree_GK_CM_108E",test8);
-  CoordinateSystemItem *test15 = new CoordinateSystemItem("CGCS2000_3_Degree_GK_CM_111E",test8);
-  CoordinateSystemItem *test16 = new CoordinateSystemItem("CGCS2000_3_Degree_GK_CM_114E",test8);
+  root_item_ = new CoordinateSystemItem("root",CoordinateSystemItem::FOLDER_CLOSE,0);
+  item_icon_folder_clolse_     = new QIcon(":/folder_closed");
+  item_icon_folder_open_       = new QIcon(":/folder_open");
+  item_icon_coordinate_system_ = new QIcon(":/earth");
 
-  GCS &g1 = test4->gcs();
-  g1.GCS_name_ = "GCS_Beijing_1954";
-  g1.datum_name_ = "D_Beijing_1954";
+  ReadWriteFile::ReadCoordinateSystem("coordinate_system.xml",*root_item_);
 
 }
 
 CoordinateSystemModel::~CoordinateSystemModel()
 {
+  delete item_icon_folder_clolse_;
+  delete item_icon_folder_open_;
+  delete item_icon_coordinate_system_;
   delete root_item_;
 }
 
@@ -43,48 +32,52 @@ QVariant CoordinateSystemModel::data(const QModelIndex &index,int role) const
      //index.column()==0  &&    //第一列的节点  
      //rowCount(index)==0      //子节点数为0  
     )
-  {    
+  {
+    CoordinateSystemItem *item = static_cast<CoordinateSystemItem*>(index.internalPointer());
+    CoordinateSystemItem::ItemType item_icon_type = item->item_type();
 
-    CoordinateSystemModel *model = (CoordinateSystemModel *)index.model();
-    if (model == nullptr)
+    switch(item_icon_type)
     {
-      return QVariant();
+    case CoordinateSystemItem::FOLDER_CLOSE:
+      return *item_icon_folder_clolse_;
+    case CoordinateSystemItem::FOLDER_OPEN:
+      return *item_icon_folder_open_;
+    default:
+      return*item_icon_coordinate_system_;;
     }
-
-    CoordinateSystemItem *item = model->getItem(index);
-    return item->getIcon();
   }
 
-  if(role != Qt::DisplayRole)
-      return QVariant();
+  if(role == Qt::DisplayRole)
+  {
+    CoordinateSystemItem *item = 
+      static_cast<CoordinateSystemItem*>(index.internalPointer());
+  return item->item_name();
+  }
+
+  return QVariant();
+
+}
+
+void CoordinateSystemModel::SetItemExpandedIcon(const QModelIndex &index)
+{
   CoordinateSystemItem *item =
     static_cast<CoordinateSystemItem*>(index.internalPointer());
-  return item->data();
-
+  if (item && (item->item_type() != CoordinateSystemItem::GEOGRAPHIC_COORDINATE_SYSTEM ||
+    item->item_type() != CoordinateSystemItem::PROJECTED_COORDINATE_SYSTEM))
+  {
+    item->set_item_type(CoordinateSystemItem::FOLDER_OPEN);
+  }
 }
 
-bool CoordinateSystemModel::setItemExpandedIcon(const QModelIndex &index)
+void CoordinateSystemModel::SetItemCollapsedIcon(const QModelIndex &index)
 {
-  CoordinateSystemModel *model = (CoordinateSystemModel *)index.model();
-  if(model == nullptr)
+  CoordinateSystemItem *item =
+    static_cast<CoordinateSystemItem*>(index.internalPointer());
+  if(item && (item->item_type() != CoordinateSystemItem::GEOGRAPHIC_COORDINATE_SYSTEM ||
+    item->item_type() != CoordinateSystemItem::PROJECTED_COORDINATE_SYSTEM))
   {
-    return false;
+    item->set_item_type(CoordinateSystemItem::FOLDER_CLOSE);
   }
-  CoordinateSystemItem *item = model->getItem(index);
-  item->setIcon(new QIcon(":/folder_open"));
-
-}
-
-bool CoordinateSystemModel::setItemCollapsedIcon(const QModelIndex &index)
-{
-  CoordinateSystemModel *model = (CoordinateSystemModel *)index.model();
-  if(model == nullptr)
-  {
-    return false;
-  }
-  CoordinateSystemItem *item = model->getItem(index);
-  item->setIcon(new QIcon(":/folder_closed"));
-
 }
 
 QModelIndex CoordinateSystemModel::index(int row,int column,
@@ -102,9 +95,9 @@ QModelIndex CoordinateSystemModel::index(int row,int column,
 
   CoordinateSystemItem *childItem = parentItem->child(row);
   if(childItem)
-      return createIndex(row,column,childItem);
-  else
-      return QModelIndex();
+    return createIndex(row,column,childItem);
+
+  return QModelIndex();
 }
 QModelIndex CoordinateSystemModel::parent(const QModelIndex &index) const 
 {
@@ -113,7 +106,7 @@ QModelIndex CoordinateSystemModel::parent(const QModelIndex &index) const
 
   CoordinateSystemItem *childItem = 
     static_cast<CoordinateSystemItem*>(index.internalPointer());
-  CoordinateSystemItem *parentItem = childItem->parentItem();
+  CoordinateSystemItem *parentItem = childItem->parent_item();
 
   if(parentItem == root_item_)
       return QModelIndex();
@@ -147,9 +140,35 @@ CoordinateSystemItem* CoordinateSystemModel::getItem(const QModelIndex &index) c
   return static_cast<CoordinateSystemItem*>(index.internalPointer());
 }
 
-void CoordinateSystemModel::addItem(
+CoordinateSystemItem* CoordinateSystemModel::getItem(int wkid) const
+{
+  return TraverseItems(wkid,root_item_);
+}
+
+void CoordinateSystemModel::AddItems(
   CoordinateSystemItem* item,
   CoordinateSystemItem *parentItem)
 {
 
+}
+
+CoordinateSystemItem* CoordinateSystemModel::TraverseItems(
+  int wkid, CoordinateSystemItem* parent_item) const
+{
+  CoordinateSystemItem* item;
+  for(int i = 0; i < parent_item->childCount(); ++i)
+  {
+    item = parent_item->child_item(i);
+    if(item->item_wkid() == wkid)
+    {
+      return item;
+    }
+    //return TraverseItems(wkid,item);
+    CoordinateSystemItem* item1 = TraverseItems(wkid,item);
+    if (item1 != nullptr)
+    {
+      return item1;
+    }
+  }
+  return nullptr;
 }

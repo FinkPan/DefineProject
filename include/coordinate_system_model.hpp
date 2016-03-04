@@ -5,6 +5,10 @@
 #include <QModelIndex>
 #include <QVariant>
 #include <QIcon>
+#include <QMap>
+
+#include "geographic_coordinate_system.hpp"
+#include "projected_coordinate_system.hpp"
 
 class CoordinateSystemItem;
 
@@ -24,14 +28,21 @@ public:
   int	columnCount(const QModelIndex & parent = QModelIndex()) const Q_DECL_OVERRIDE;
 
   CoordinateSystemItem* getItem(const QModelIndex &index) const;
-  void addItem(CoordinateSystemItem* item, CoordinateSystemItem *parentItem = 0);
+  CoordinateSystemItem* getItem(int wkid) const;
 
-  bool setItemExpandedIcon(const QModelIndex &index);
-  bool setItemCollapsedIcon(const QModelIndex &index);
+  void SetItemExpandedIcon(const QModelIndex &index);
+  void SetItemCollapsedIcon(const QModelIndex &index);
+
+private:
+  void AddItems(CoordinateSystemItem* item,CoordinateSystemItem *parentItem = 0);
+  CoordinateSystemItem* TraverseItems(int wkid, CoordinateSystemItem* parent_item) const;
 
 private:
   CoordinateSystemItem *root_item_;
-
+  QIcon *item_icon_folder_clolse_;
+  QIcon *item_icon_folder_open_;
+  QIcon *item_icon_coordinate_system_;
+  QMap<int, QModelIndex> wkid_index_;
 };
 
 #endif

@@ -8,16 +8,15 @@
 
 #include <QTreeView>
 #include <QTextEdit>
+#include <QScrollBar>
 
 MainWindow::MainWindow(QWidget *parent):
-QMainWindow(parent),
-    ui(new Ui::MainWindow)
+QWidget(parent),
+    ui(new Ui::Widget)
 {
+  coordinate_system_model_ = new CoordinateSystemModel;
+
   ui->setupUi(this);
-
-  connect(ui->treeView,&QTreeView::clicked,
-          this,&MainWindow::SetText);
-
   ui->treeView->header()->hide();
   ui->treeView->setStyleSheet(" \
       QTreeView::branch:has-siblings:!adjoins-item {\
@@ -41,16 +40,19 @@ QMainWindow(parent),
             image: url(:/branch_open);                      \
     }                                                   \
     ");
-  coordinate_system_model_ = new CoordinateSystemModel;
   ui->treeView->setModel(coordinate_system_model_);
+  ui->textEdit->setReadOnly(true);
+  ui->textEdit->setWordWrapMode(QTextOption::NoWrap);
 
+  connect(ui->treeView,&QTreeView::clicked,
+        this,&MainWindow::SetText);
   connect(ui->treeView,&QTreeView::expanded,
-          coordinate_system_model_,&CoordinateSystemModel::setItemExpandedIcon);
+        coordinate_system_model_,&CoordinateSystemModel::SetItemExpandedIcon);
   connect(ui->treeView,&QTreeView::collapsed,
-          coordinate_system_model_,&CoordinateSystemModel::setItemCollapsedIcon);
+          coordinate_system_model_,&CoordinateSystemModel::SetItemCollapsedIcon);
+  connect(ui->pushButton_ok,&QPushButton::clicked,
+          this,&MainWindow::WriteData);
 
-
- // ReadCoordinateSystem("gcs.csv");
 }
 
 MainWindow::~MainWindow()
@@ -59,29 +61,41 @@ MainWindow::~MainWindow()
   delete ui;
 }
 
-void MainWindow::ReadCoordinateSystem(const std::string& file_path)
-{
- std::ifstream in_file(file_path);
- if (in_file.is_open())
- {
-   std::string str_line;
-   getline(in_file,str_line);
-   while(getline(in_file,str_line));
-   {
-     std::string str_line1 = str_line;
-   }
- }
-}
-
 void MainWindow::SetText(const QModelIndex &index)
 {
   CoordinateSystemModel *model = ( CoordinateSystemModel *)index.model();
   CoordinateSystemItem *item = model->getItem(index);
-  if (item->IsCoordinatieSystem())
+
+  if(item->item_type() == CoordinateSystemItem::GEOGRAPHIC_COORDINATE_SYSTEM)
   {
-//     ui->textEdit->setText(item->data().toString());
-    ui->textEdit->setText(item->gcs().GCS_name_);
+    ui->textEdit->setText(item->data()->Text());
   }
+  else if (item->item_type() == CoordinateSystemItem::PROJECTED_COORDINATE_SYSTEM)
+  {
+    ui->textEdit->setText(item->data()->Text());
+    ProjectedCoordinateSystem* pcs = 
+      dynamic_cast<ProjectedCoordinateSystem*>(item->data());
+
+    int gcs_wkid = pcs->gcs_wkid();
+
+    CoordinateSystemItem* gcs = model->getItem(gcs_wkid);
+    if(gcs != nullptr)
+    {
+      ui->textEdit->append("\nGeographic Coordinate System:");
+      ui->textEdit->append(gcs->data()->Text());
+    }
+    else
+    {
+      ui->textEdit->append("\nWARNING: can't find Geographic Coordinate System!\n");
+    }
+  }
+  QScrollBar *sb = ui->textEdit->verticalScrollBar();
+  sb->setValue(sb->minimum());
+
+}
+
+void MainWindow::WriteData()
+{
 
 }
 

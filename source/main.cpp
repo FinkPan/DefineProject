@@ -1,7 +1,7 @@
 
 #include "mainwindow.hpp"
-
-#include <QApplication>   
+#include <QApplication>
+#include "read_write_file.hpp"
 
 //ÄÚ´æÐ¹Â©¼ì²â
 #define _CRTDBG_MAP_ALLOC
@@ -19,7 +19,9 @@ inline void EnableMemLeakCheck()
 int main(int argc,char *argv[])
 {
   EnableMemLeakCheck();
-  //_CrtSetBreakAlloc(96430);
+//    _CrtSetBreakAlloc(98264);
+
+//   ReadWriteFile::WriteCoordinateSystem("gcs.xml");
 
   QApplication app(argc,argv);
   MainWindow w;

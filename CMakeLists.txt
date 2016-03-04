@@ -33,17 +33,19 @@ set(source_FILES
       source/coordinate_system_model.cpp
       include/coordinate_system_item.hpp
       source/coordinate_system_item.cpp
+      include/coordinate_system_data.hpp
+      source/coordinate_system_data.cpp
       include/geographic_coordinate_system.hpp
       source/geographic_coordinate_system.cpp
       include/projected_coordinate_system.hpp
       source/projected_coordinate_system.cpp
       include/coordinate_system_delegate.hpp
       source/coordinate_system_delegate.cpp
-      include/write_file.hpp
-      source/write_file.cpp
+      include/read_write_file.hpp
+      source/read_write_file.cpp
     )
 
-add_executable(DefineProject WIN32 ${source_FILES} ${ui_FILES} ${re_FILES})
+add_executable(DefineProject ${source_FILES} ${ui_FILES} ${re_FILES})
 
 target_link_libraries(DefineProject Qt5::Widgets "${GDAL_LIBS}")
 

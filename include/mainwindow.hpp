@@ -3,16 +3,16 @@
 
 #include <string>
 
-#include <QMainWindow>
+#include <QWidget>
 
 class CoordinateSystemModel;
 
 namespace Ui
 {
-class MainWindow;
+class Widget;
 }
 
-class MainWindow: public QMainWindow
+class MainWindow: public QWidget
 {
   Q_OBJECT
 
@@ -22,11 +22,10 @@ public:
 
 public slots:
   void SetText(const QModelIndex &index);
-
-  void ReadCoordinateSystem(const std::string& file_path);
+  void WriteData();
 
 private:
-  Ui::MainWindow *ui;
+  Ui::Widget *ui;
   CoordinateSystemModel *coordinate_system_model_;
 
 };
