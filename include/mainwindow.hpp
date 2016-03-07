@@ -23,10 +23,15 @@ public:
 public slots:
   void SetText(const QModelIndex &index);
   void WriteData();
+  int OnPushButtonInput();
+  int OnPushButtonOutput();
+  int OnCheckBoxReplaceFiles();
 
 private:
   Ui::Widget *ui;
   CoordinateSystemModel *coordinate_system_model_;
+  QStringList input_files_;
+  QString out_dir_;
 
 };
 
