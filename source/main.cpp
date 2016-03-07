@@ -19,7 +19,7 @@ inline void EnableMemLeakCheck()
 int main(int argc,char *argv[])
 {
   EnableMemLeakCheck();
-//    _CrtSetBreakAlloc(98264);
+//    _CrtSetBreakAlloc(8458);
 
 //   ReadWriteFile::WriteCoordinateSystem("gcs.xml");
 

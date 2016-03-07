@@ -83,13 +83,13 @@ void MainWindow::SetText(const QModelIndex &index)
 
   if(item->item_type() == CoordinateSystemItem::GEOGRAPHIC_COORDINATE_SYSTEM)
   {
-    ui->textEdit->setText(item->data()->Text());
+    ui->textEdit->setText(item->Text());
   }
   else if (item->item_type() == CoordinateSystemItem::PROJECTED_COORDINATE_SYSTEM)
   {
-    ui->textEdit->setText(item->data()->Text());
-    ProjectedCoordinateSystem* pcs = 
-      dynamic_cast<ProjectedCoordinateSystem*>(item->data());
+    ui->textEdit->setText(item->Text());
+    ProjectedCoordinateSystemItem* pcs =
+      dynamic_cast<ProjectedCoordinateSystemItem*>(item);
 
     int gcs_wkid = pcs->gcs_wkid();
 
@@ -97,7 +97,7 @@ void MainWindow::SetText(const QModelIndex &index)
     if(gcs != nullptr)
     {
       ui->textEdit->append("\nGeographic Coordinate System:");
-      ui->textEdit->append(gcs->data()->Text());
+      ui->textEdit->append(gcs->Text());
     }
     else
     {
@@ -116,7 +116,7 @@ int MainWindow::OnPushButtonOk()
     dynamic_cast<const CoordinateSystemModel *>(index.model());
   CoordinateSystemItem *item = model->getItem(index);
 
-  ui->textEdit->setText(item->data()->Text());
+  ui->textEdit->setText(item->Text());
 
   return 0;
 }

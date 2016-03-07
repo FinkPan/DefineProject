@@ -7,8 +7,8 @@
 #include <QIcon>
 #include <QMap>
 
-#include "geographic_coordinate_system.hpp"
-#include "projected_coordinate_system.hpp"
+#include "geographic_coordinate_system_item.hpp"
+#include "projected_coordinate_system_item.hpp"
 
 class CoordinateSystemItem;
 
@@ -20,9 +20,8 @@ public:
   ~CoordinateSystemModel();
 
   QVariant data(const QModelIndex &index,int role) const Q_DECL_OVERRIDE;
-
   QModelIndex index(int row,int column,
-                    const QModelIndex &parent = QModelIndex()) const Q_DECL_OVERRIDE;
+    const QModelIndex &parent = QModelIndex()) const Q_DECL_OVERRIDE;
   QModelIndex parent(const QModelIndex &index) const Q_DECL_OVERRIDE;
   int rowCount(const QModelIndex &parent = QModelIndex()) const Q_DECL_OVERRIDE;
   int	columnCount(const QModelIndex & parent = QModelIndex()) const Q_DECL_OVERRIDE;

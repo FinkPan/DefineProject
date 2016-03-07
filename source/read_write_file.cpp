@@ -3,8 +3,8 @@
 #include <QObject>
 #include <boost/foreach.hpp>
 #include "read_write_file.hpp"
-#include "geographic_coordinate_system.hpp"
-#include "projected_coordinate_system.hpp"
+#include "geographic_coordinate_system_item.hpp"
+#include "projected_coordinate_system_item.hpp"
 
 void ReadWriteFile::WriteCoordinateSystem(const std::string& filename)
 {
@@ -117,21 +117,23 @@ void ReadWriteFile::ReadCoordinateSystem(
         CoordinateSystemItem::FOLDER_CLOSE,&root_item);
       BOOST_FOREACH(ptree::value_type &v_gcs,v_cs.second)
       {
-        CoordinateSystemItem* gcs_item = new CoordinateSystemItem(
+//         CoordinateSystemItem* gcs_item = new CoordinateSystemItem(
+//           QVariant(v_gcs.first.c_str()),
+//           CoordinateSystemItem::GEOGRAPHIC_COORDINATE_SYSTEM,cs_item);
+        GeographicCoordinateSystemItem* gcs_item = new GeographicCoordinateSystemItem(
           QVariant(v_gcs.first.c_str()),
           CoordinateSystemItem::GEOGRAPHIC_COORDINATE_SYSTEM,cs_item);
-        GeographicCoordinateSystem* gcs_temp = new GeographicCoordinateSystem;
-        gcs_temp->name() = v_gcs.first;
-        gcs_temp->wkid() = v_gcs.second.get<int>("WKID");
-        gcs_temp->angular_unit() = v_gcs.second.get<std::string>("angular_unit");
-        gcs_temp->radians_per_unit() = v_gcs.second.get<double>("radians_per_unit");
-        gcs_temp->prime_meridian() = v_gcs.second.get<std::string>("prime_meridian");
-        gcs_temp->prime_meridian_offset() = v_gcs.second.get<double>("prime_meridian_offset");
-        gcs_temp->datum() = v_gcs.second.get<std::string>("datum");
-        gcs_temp->spheroid() = v_gcs.second.get<std::string>("spheroid");
-        gcs_temp->semimajor_axis() = v_gcs.second.get<double>("semimajor_axis");
-        gcs_temp->inverse_flattening() = v_gcs.second.get<double>("inverse_flattening");
-        gcs_item->set_item_data(gcs_temp);
+//         gcs_item->name() = v_gcs.first;
+        gcs_item->wkid() = v_gcs.second.get<int>("WKID");
+        gcs_item->angular_unit() = v_gcs.second.get<std::string>("angular_unit");
+        gcs_item->radians_per_unit() = v_gcs.second.get<double>("radians_per_unit");
+        gcs_item->prime_meridian() = v_gcs.second.get<std::string>("prime_meridian");
+        gcs_item->prime_meridian_offset() = v_gcs.second.get<double>("prime_meridian_offset");
+        gcs_item->datum() = v_gcs.second.get<std::string>("datum");
+        gcs_item->spheroid() = v_gcs.second.get<std::string>("spheroid");
+        gcs_item->semimajor_axis() = v_gcs.second.get<double>("semimajor_axis");
+        gcs_item->inverse_flattening() = v_gcs.second.get<double>("inverse_flattening");
+//         gcs_item->set_item_data(gcs_temp);
       }
     }
     else if (v_cs.first == "Projected_coordinate_system")
@@ -151,22 +153,24 @@ void ReadWriteFile::ReadCoordinateSystem(
             CoordinateSystemItem::FOLDER_CLOSE,pn_item);
           BOOST_FOREACH(ptree::value_type &v_pcsn,v_csn.second)
           {
-            CoordinateSystemItem* pcnsn_item = new CoordinateSystemItem(
+//             CoordinateSystemItem* pcnsn_item = new CoordinateSystemItem(
+//               QVariant(v_pcsn.first.c_str()),
+//               CoordinateSystemItem::PROJECTED_COORDINATE_SYSTEM,pcns_item);
+            ProjectedCoordinateSystemItem* pcnsn_item = new ProjectedCoordinateSystemItem(
               QVariant(v_pcsn.first.c_str()),
               CoordinateSystemItem::PROJECTED_COORDINATE_SYSTEM,pcns_item);
-            ProjectedCoordinateSystem* pcs_temp = new ProjectedCoordinateSystem;
-            pcs_temp->name() = v_pcsn.first;
-            pcs_temp->wkid() = v_pcsn.second.get<int>("WKID");
-            pcs_temp->gcs_wkid() = v_pcsn.second.get<int>("GCS_WKID");
-            pcs_temp->projection() = v_pcsn.second.get<std::string>("projection");
-            pcs_temp->false_easting() = v_pcsn.second.get<double>("false_easting");
-            pcs_temp->false_northing() = v_pcsn.second.get<double>("false_northing");
-            pcs_temp->central_meridian() = v_pcsn.second.get<double>("central_meridian");
-            pcs_temp->scale_factor() = v_pcsn.second.get<double>("scale_factor");
-            pcs_temp->latitude_of_origin() = v_pcsn.second.get<double>("latitude_of_origin");
-            pcs_temp->linear_unit_name() = v_pcsn.second.get<std::string>("linear_unit_name");
-            pcs_temp->linear_unit() = v_pcsn.second.get<double>("linear_unit");
-            pcnsn_item->set_item_data(pcs_temp);
+//             pcs_temp->name() = v_pcsn.first;
+            pcnsn_item->wkid() = v_pcsn.second.get<int>("WKID");
+            pcnsn_item->gcs_wkid() = v_pcsn.second.get<int>("GCS_WKID");
+            pcnsn_item->projection() = v_pcsn.second.get<std::string>("projection");
+            pcnsn_item->false_easting() = v_pcsn.second.get<double>("false_easting");
+            pcnsn_item->false_northing() = v_pcsn.second.get<double>("false_northing");
+            pcnsn_item->central_meridian() = v_pcsn.second.get<double>("central_meridian");
+            pcnsn_item->scale_factor() = v_pcsn.second.get<double>("scale_factor");
+            pcnsn_item->latitude_of_origin() = v_pcsn.second.get<double>("latitude_of_origin");
+            pcnsn_item->linear_unit_name() = v_pcsn.second.get<std::string>("linear_unit_name");
+            pcnsn_item->linear_unit() = v_pcsn.second.get<double>("linear_unit");
+//             pcnsn_item->set_item_data(pcs_temp);
           }
         }
       }

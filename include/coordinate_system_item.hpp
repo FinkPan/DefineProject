@@ -3,11 +3,6 @@
 
 #include <QList>
 #include <QVariant>
-#include <QIcon>
-
-//#include "geographic_coordinate_system.hpp"
-//#include "projected_coordinate_system.hpp"
-#include "coordinate_system_data.hpp"
 
 class CoordinateSystemItem
 {
@@ -24,33 +19,36 @@ public:
     QVariant item_name,
     ItemType item_type,
     CoordinateSystemItem *parent_item = nullptr);
-  ~CoordinateSystemItem();
+  virtual ~CoordinateSystemItem();
 
-  CoordinateSystemItem *child(int row);
+  virtual QString Text();
+
+  int& wkid();
 
   bool set_item_name(QVariant item_name);
   void set_item_type(ItemType item_type);
-  void set_item_data(CoordinateSystemData* data);
 
   int childCount() const;
   int columnCount() const;
   int row() const;
   QVariant item_name() const;
   ItemType item_type() const;
-  int item_wkid() const;
+  
   CoordinateSystemItem* parent_item() const;
   CoordinateSystemItem* child_item(int i) const;
+  void add_child_item(CoordinateSystemItem* item);
 
-  CoordinateSystemData* data() const;
+  CoordinateSystemItem *child(int row);
+
+
+protected:
+  int wkid_;
+  QVariant item_name_;
 
 private:
-  QVariant item_name_;
   ItemType item_type_;
-
-  QList<CoordinateSystemItem*> child_items_;
   CoordinateSystemItem *parent_item_;
-
-  CoordinateSystemData* data_;
+  QList<CoordinateSystemItem*> child_items_;
 
 };
 

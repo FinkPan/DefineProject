@@ -5,7 +5,8 @@
 CoordinateSystemModel::CoordinateSystemModel(QObject *parent)
   : QAbstractItemModel(parent)
 {
-  root_item_ = new CoordinateSystemItem("root",CoordinateSystemItem::FOLDER_CLOSE,0);
+  root_item_ = new CoordinateSystemItem(
+    "root",CoordinateSystemItem::FOLDER_CLOSE);
   item_icon_folder_clolse_     = new QIcon(":/folder_closed");
   item_icon_folder_open_       = new QIcon(":/folder_open");
   item_icon_coordinate_system_ = new QIcon(":/earth");
@@ -159,7 +160,7 @@ CoordinateSystemItem* CoordinateSystemModel::TraverseItems(
   for(int i = 0; i < parent_item->childCount(); ++i)
   {
     item = parent_item->child_item(i);
-    if(item->item_wkid() == wkid)
+    if(item->wkid() == wkid)
     {
       return item;
     }

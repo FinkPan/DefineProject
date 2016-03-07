@@ -1,26 +1,28 @@
-﻿#include "coordinate_system_item.hpp"
+﻿#include <iostream>
+
+#include "coordinate_system_item.hpp"
 
 CoordinateSystemItem::CoordinateSystemItem(
   QVariant item_name,
   ItemType item_type,
   CoordinateSystemItem *parent_item)
-  : parent_item_(parent_item)
+  : wkid_(-1)
   , item_name_(item_name)
   , item_type_(item_type)
-  , data_(nullptr)
+  , parent_item_(parent_item)
 {
-    if (parent_item_ != nullptr)
-      parent_item_->child_items_.append(this);
+  if(parent_item_ != nullptr)
+    parent_item_->add_child_item(this);
 }
 
 CoordinateSystemItem::~CoordinateSystemItem()
 {  
-  if (data_ != nullptr)
-  {
-    delete data_;
-  }
-  
   qDeleteAll(child_items_);
+}
+
+void CoordinateSystemItem::add_child_item(CoordinateSystemItem* item)
+{
+  child_items_.append(item);
 }
 
 CoordinateSystemItem *CoordinateSystemItem::child(int row)
@@ -75,30 +77,18 @@ void CoordinateSystemItem::set_item_type(ItemType item_type)
   item_type_ = item_type;
 }
 
-void CoordinateSystemItem::set_item_data(CoordinateSystemData* data)
-{
-  data_ = data;
-}
-
 CoordinateSystemItem::ItemType CoordinateSystemItem::item_type() const
 {
   return item_type_;
 }
 
-CoordinateSystemData* CoordinateSystemItem::data() const
+int& CoordinateSystemItem::wkid()
 {
-  return data_;
+  return wkid_;
 }
 
-int CoordinateSystemItem::item_wkid() const
+QString CoordinateSystemItem::Text()
 {
-  switch(item_type_)
-  {
-  case GEOGRAPHIC_COORDINATE_SYSTEM:
-  case PROJECTED_COORDINATE_SYSTEM:
-    return data_->wkid();
-  default:
-    return -1;
-  }
+  return item_name_.toString();
 }
 
