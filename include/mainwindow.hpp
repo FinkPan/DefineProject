@@ -4,6 +4,7 @@
 #include <string>
 
 #include <QWidget>
+#include <QItemSelectionModel>
 
 class CoordinateSystemModel;
 
@@ -22,7 +23,7 @@ public:
 
 public slots:
   void SetText(const QModelIndex &index);
-  void WriteData();
+  int OnPushButtonOk();
   int OnPushButtonInput();
   int OnPushButtonOutput();
   int OnCheckBoxReplaceFiles();
@@ -30,6 +31,7 @@ public slots:
 private:
   Ui::Widget *ui;
   CoordinateSystemModel *coordinate_system_model_;
+  QItemSelectionModel* item_selection_model_;
   QStringList input_files_;
   QString out_dir_;
 

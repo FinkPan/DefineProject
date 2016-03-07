@@ -15,7 +15,8 @@ MainWindow::MainWindow(QWidget *parent):
 QWidget(parent),
     ui(new Ui::Widget)
 {
-  coordinate_system_model_ = new CoordinateSystemModel;
+  coordinate_system_model_ = new CoordinateSystemModel(this);
+  item_selection_model_ = new QItemSelectionModel(coordinate_system_model_);
 
   ui->setupUi(this);
   ui->treeView->header()->hide();
@@ -50,6 +51,8 @@ QWidget(parent),
 
   ui->checkBox->setChecked(true);
 
+  ui->treeView->setSelectionModel(item_selection_model_);
+
   connect(ui->treeView,&QTreeView::clicked,
         this,&MainWindow::SetText);
   connect(ui->treeView,&QTreeView::expanded,
@@ -57,7 +60,7 @@ QWidget(parent),
   connect(ui->treeView,&QTreeView::collapsed,
           coordinate_system_model_,&CoordinateSystemModel::SetItemCollapsedIcon);
   connect(ui->pushButton_ok,&QPushButton::clicked,
-          this,&MainWindow::WriteData);
+          this,&MainWindow::OnPushButtonOk);
   connect(ui->pushButton_input,&QPushButton::clicked,
           this,&MainWindow::OnPushButtonInput);
   connect(ui->pushButton_output,&QPushButton::clicked,
@@ -106,9 +109,16 @@ void MainWindow::SetText(const QModelIndex &index)
 
 }
 
-void MainWindow::WriteData()
+int MainWindow::OnPushButtonOk()
 {
+  const QModelIndex index = item_selection_model_->currentIndex();
+  const CoordinateSystemModel *model = 
+    dynamic_cast<const CoordinateSystemModel *>(index.model());
+  CoordinateSystemItem *item = model->getItem(index);
 
+  ui->textEdit->setText(item->data()->Text());
+
+  return 0;
 }
 
 int MainWindow::OnPushButtonInput()
