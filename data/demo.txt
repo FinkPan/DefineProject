@@ -1,0 +1,39 @@
+demo
+Driver: GTiff/GeoTIFF
+Files: demo.tif
+Size is 204, 189
+Coordinate System is:
+PROJCS["WGS 84 / UTM zone 49N",
+    GEOGCS["WGS 84",
+        DATUM["WGS_1984",
+            SPHEROID["WGS 84",6378137,298.2572235604902,
+                AUTHORITY["EPSG","7030"]],
+            AUTHORITY["EPSG","6326"]],
+        PRIMEM["Greenwich",0],
+        UNIT["degree",0.0174532925199433],
+        AUTHORITY["EPSG","4326"]],
+    PROJECTION["Transverse_Mercator"],
+    PARAMETER["latitude_of_origin",0],
+    PARAMETER["central_meridian",111],
+    PARAMETER["scale_factor",0.9996],
+    PARAMETER["false_easting",500000],
+    PARAMETER["false_northing",0],
+    UNIT["metre",1,
+        AUTHORITY["EPSG","9001"]],
+    AUTHORITY["EPSG","32649"]]
+Origin = (539882.269478536910000,2411037.666060342500000)
+Pixel Size = (0.100000000000114,-0.099999999999507)
+Metadata:
+  AREA_OR_POINT=Area
+Image Structure Metadata:
+  COMPRESSION=PACKBITS
+  INTERLEAVE=BAND
+Corner Coordinates:
+Upper Left  (  539882.269, 2411037.666)
+Lower Left  (  539882.269, 2411018.766)
+Upper Right (  539902.669, 2411037.666)
+Lower Right (  539902.669, 2411018.766)
+Center      (  539892.469, 2411028.216)
+Band 1 Block=204x1 Type=Byte, ColorInterp=Palette
+  Color Table (RGB with 256 entries)
+    0: 47,40,43,255

@@ -1,0 +1,28 @@
+E:\test\tiff>gdalinfo.exe demo_wgs84.tif
+Driver: GTiff/GeoTIFF
+Files: demo_wgs84.tif
+Size is 278, 274
+Coordinate System is:
+GEOGCS["WGS 84",
+    DATUM["WGS_1984",
+        SPHEROID["WGS 84",6378137,298.2572235604902,
+            AUTHORITY["EPSG","7030"]],
+        AUTHORITY["EPSG","6326"]],
+    PRIMEM["Greenwich",0],
+    UNIT["degree",0.0174532925199433],
+    AUTHORITY["EPSG","4326"]]
+Origin = (111.385845347921290,21.802742002689918)
+Pixel Size = (0.000000903460591,-0.000000903460591)
+Metadata:
+  AREA_OR_POINT=Area
+Image Structure Metadata:
+  COMPRESSION=PACKBITS
+  INTERLEAVE=BAND
+Corner Coordinates:
+Upper Left  ( 111.3858453,  21.8027420)
+Lower Left  ( 111.3858453,  21.8024945)
+Upper Right ( 111.3860965,  21.8027420)
+Lower Right ( 111.3860965,  21.8024945)
+Center      ( 111.3859709,  21.8026182)
+Band 1 Block=278x1 Type=Byte, ColorInterp=Palette
+  Color Table (RGB with 256 entries)
