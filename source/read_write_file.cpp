@@ -174,3 +174,9 @@ void ReadWriteFile::ReadCoordinateSystem(
   }
 //        gcs.AddGCS(v.second.data()
 }
+
+int ReadWriteFile::ReNameTiffFiles(const QStringList& filelist)
+{
+
+  return 0;
+}

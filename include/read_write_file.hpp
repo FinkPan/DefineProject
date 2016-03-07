@@ -2,6 +2,7 @@
 #define _DEFINEPROJECT_READ_WRITE_FILE_HPP_
 
 #include <string>
+#include <QStringList>
 
 #include "coordinate_system_item.hpp"
 
@@ -16,6 +17,9 @@ public:
   static void ReadCoordinateSystem(
     const std::string& filename,
     CoordinateSystemItem& root_item);
+
+  static int ReNameTiffFiles(const QStringList& filelist);
+
 protected:
 private:
 };
