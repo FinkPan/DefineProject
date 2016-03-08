@@ -2,6 +2,7 @@
 #include <QString>
 #include <QObject>
 #include <boost/foreach.hpp>
+
 #include "read_write_file.hpp"
 #include "geographic_coordinate_system_item.hpp"
 #include "projected_coordinate_system_item.hpp"
@@ -117,13 +118,10 @@ void ReadWriteFile::ReadCoordinateSystem(
         CoordinateSystemItem::FOLDER_CLOSE,&root_item);
       BOOST_FOREACH(ptree::value_type &v_gcs,v_cs.second)
       {
-//         CoordinateSystemItem* gcs_item = new CoordinateSystemItem(
-//           QVariant(v_gcs.first.c_str()),
-//           CoordinateSystemItem::GEOGRAPHIC_COORDINATE_SYSTEM,cs_item);
-        GeographicCoordinateSystemItem* gcs_item = new GeographicCoordinateSystemItem(
+        GeographicCoordinateSystemItem* gcs_item = 
+          new GeographicCoordinateSystemItem(
           QVariant(v_gcs.first.c_str()),
           CoordinateSystemItem::GEOGRAPHIC_COORDINATE_SYSTEM,cs_item);
-//         gcs_item->name() = v_gcs.first;
         gcs_item->wkid() = v_gcs.second.get<int>("WKID");
         gcs_item->angular_unit() = v_gcs.second.get<std::string>("angular_unit");
         gcs_item->radians_per_unit() = v_gcs.second.get<double>("radians_per_unit");
@@ -133,7 +131,6 @@ void ReadWriteFile::ReadCoordinateSystem(
         gcs_item->spheroid() = v_gcs.second.get<std::string>("spheroid");
         gcs_item->semimajor_axis() = v_gcs.second.get<double>("semimajor_axis");
         gcs_item->inverse_flattening() = v_gcs.second.get<double>("inverse_flattening");
-//         gcs_item->set_item_data(gcs_temp);
       }
     }
     else if (v_cs.first == "Projected_coordinate_system")
@@ -153,13 +150,10 @@ void ReadWriteFile::ReadCoordinateSystem(
             CoordinateSystemItem::FOLDER_CLOSE,pn_item);
           BOOST_FOREACH(ptree::value_type &v_pcsn,v_csn.second)
           {
-//             CoordinateSystemItem* pcnsn_item = new CoordinateSystemItem(
-//               QVariant(v_pcsn.first.c_str()),
-//               CoordinateSystemItem::PROJECTED_COORDINATE_SYSTEM,pcns_item);
-            ProjectedCoordinateSystemItem* pcnsn_item = new ProjectedCoordinateSystemItem(
+            ProjectedCoordinateSystemItem* pcnsn_item = 
+              new ProjectedCoordinateSystemItem(
               QVariant(v_pcsn.first.c_str()),
               CoordinateSystemItem::PROJECTED_COORDINATE_SYSTEM,pcns_item);
-//             pcs_temp->name() = v_pcsn.first;
             pcnsn_item->wkid() = v_pcsn.second.get<int>("WKID");
             pcnsn_item->gcs_wkid() = v_pcsn.second.get<int>("GCS_WKID");
             pcnsn_item->projection() = v_pcsn.second.get<std::string>("projection");
@@ -170,17 +164,107 @@ void ReadWriteFile::ReadCoordinateSystem(
             pcnsn_item->latitude_of_origin() = v_pcsn.second.get<double>("latitude_of_origin");
             pcnsn_item->linear_unit_name() = v_pcsn.second.get<std::string>("linear_unit_name");
             pcnsn_item->linear_unit() = v_pcsn.second.get<double>("linear_unit");
-//             pcnsn_item->set_item_data(pcs_temp);
           }
         }
       }
     }
   }
-//        gcs.AddGCS(v.second.data()
 }
 
-int ReadWriteFile::ReNameTiffFiles(const QStringList& filelist)
+int ReadWriteFile::ReNameTiffFiles(
+    const QStringList& filelist,
+    const QString& output_dir,
+    const CoordinateSystemItem* item)
 {
+  if (item->item_type() == CoordinateSystemItem::FOLDER_OPEN ||
+      item->item_type() == CoordinateSystemItem::FOLDER_CLOSE)
+  {
+    return -1;
+  }
+
+  QStringList false_files;
+  GDALAllRegister();
+
+  for(const auto& file : filelist)
+  {
+    GDALDataset *poDataset = NULL;
+    GDALDataset *poDataset_dummy = NULL;
+    GDALDriver *poDriver;
+    double  dfGeoTransform[6];
+
+    if(output_dir.isEmpty())
+    {
+      poDataset = (GDALDataset *)GDALOpen(file.toStdString().c_str(),GA_Update);
+    }
+    else
+    {
+      poDataset = (GDALDataset *)GDALOpen(file.toStdString().c_str(),GA_ReadOnly);
+      poDriver = GetGDALDriverManager()->GetDriverByName("GTiff");
+      if(poDriver == NULL)
+      {
+        false_files.append(file);
+        break;
+      }
+      poDataset_dummy =
+        poDriver->CreateCopy("re_demo.tif",poDataset,FALSE,NULL,NULL,NULL);
+      if(poDataset_dummy == NULL)
+      {
+        false_files.append(file);
+        break;
+      }
+    }
+
+    if(poDataset == NULL)
+    {
+      false_files.append(file);
+      break;
+    }
+
+    //poDataset->GetGeoTransform(dfGeoTransform);
+
+    OGRSpatialReference oSRS;
+    char *pszSRS_WKT = NULL;
+
+    if (item->item_type() == CoordinateSystemItem::GEOGRAPHIC_COORDINATE_SYSTEM)
+    {
+      const GeographicCoordinateSystemItem* gcs_item =
+        dynamic_cast<const GeographicCoordinateSystemItem* >(item);
+
+      oSRS.SetGeogCS(
+        gcs_item->item_name().toString().toStdString().c_str(),
+        gcs_item->datum().c_str(),
+        gcs_item->spheroid().c_str(),
+        gcs_item->semimajor_axis(),
+        gcs_item->inverse_flattening(),
+        gcs_item->prime_meridian().c_str(),
+        gcs_item->prime_meridian_offset(),
+        gcs_item->angular_unit().c_str(),
+        gcs_item->radians_per_unit());
+    }
+    else
+    {
+      const ProjectedCoordinateSystemItem* pcs_item =
+        dynamic_cast<const ProjectedCoordinateSystemItem*>(item);
+
+      oSRS.SetProjCS("CGCS2000_3_Degree_GK_Zone_36");
+      oSRS.SetUTM(36);
+
+      oSRS.SetProjParm("latitude_of_origin",0.0);
+      oSRS.SetProjParm("central_meridian",108.0);
+      oSRS.SetProjParm("scale_factor",1.0);
+      oSRS.SetProjParm("false_easting",36500000.0);
+      oSRS.SetProjParm("false_northing",0.0);
+
+    }
+
+    oSRS.exportToWkt(&pszSRS_WKT);
+    CPLErr re2 = poDataset->SetProjection(pszSRS_WKT);
+    CPLFree(pszSRS_WKT);
+
+    GDALClose((GDALDatasetH)poDataset);
+
+
+  }
 
   return 0;
 }

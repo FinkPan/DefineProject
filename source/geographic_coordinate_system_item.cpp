@@ -26,7 +26,15 @@ std::string& GeographicCoordinateSystemItem::angular_unit()
 {
   return angular_unit_;
 }
+const std::string& GeographicCoordinateSystemItem::angular_unit() const
+{
+  return angular_unit_;
+}
 double& GeographicCoordinateSystemItem::radians_per_unit()
+{
+  return radians_per_unit_;
+}
+const double& GeographicCoordinateSystemItem::radians_per_unit() const
 {
   return radians_per_unit_;
 }
@@ -35,7 +43,15 @@ std::string& GeographicCoordinateSystemItem::prime_meridian()
 {
   return prime_meridian_;
 }
+const std::string& GeographicCoordinateSystemItem::prime_meridian() const
+{
+  return prime_meridian_;
+}
 double& GeographicCoordinateSystemItem::prime_meridian_offset()
+{
+  return prime_meridian_offset_;
+}
+const double& GeographicCoordinateSystemItem::prime_meridian_offset() const
 {
   return prime_meridian_offset_;
 }
@@ -44,8 +60,16 @@ std::string& GeographicCoordinateSystemItem::datum()
 {
   return datum_;
 }
+const std::string& GeographicCoordinateSystemItem::datum() const
+{
+  return datum_;
+}
 
 std::string& GeographicCoordinateSystemItem::spheroid()
+{
+  return spheroid_;
+}
+const std::string& GeographicCoordinateSystemItem::spheroid() const
 {
   return spheroid_;
 }
@@ -53,7 +77,15 @@ double& GeographicCoordinateSystemItem::semimajor_axis()
 {
   return semimajor_axis_;
 }
+const double& GeographicCoordinateSystemItem::semimajor_axis() const
+{
+  return semimajor_axis_;
+}
 double& GeographicCoordinateSystemItem::inverse_flattening()
+{
+  return inverse_flattening_;
+}
+const double& GeographicCoordinateSystemItem::inverse_flattening() const
 {
   return inverse_flattening_;
 }

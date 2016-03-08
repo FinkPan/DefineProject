@@ -3,6 +3,7 @@
 #include "mainwindow.hpp"
 #include "coordinate_system_model.hpp"
 #include "coordinate_system_item.hpp"
+#include "read_write_file.hpp"
 
 #include "ui_main.h"
 
@@ -116,7 +117,9 @@ int MainWindow::OnPushButtonOk()
     dynamic_cast<const CoordinateSystemModel *>(index.model());
   CoordinateSystemItem *item = model->getItem(index);
 
-  ui->textEdit->setText(item->Text());
+   ReadWriteFile::ReNameTiffFiles(input_files_,out_dir_,item);
+
+//   ui->textEdit->setText(item->Text());
 
   return 0;
 }

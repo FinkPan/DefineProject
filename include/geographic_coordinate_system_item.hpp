@@ -17,16 +17,25 @@ public:
   QString Text();
 
   std::string& angular_unit();
+  const std::string& angular_unit() const;
+
   double& radians_per_unit();
+  const double& radians_per_unit() const;
 
   std::string& prime_meridian();
+  const std::string& prime_meridian() const;
   double& prime_meridian_offset();
+  const double& prime_meridian_offset() const;
 
   std::string& datum();
+  const std::string& datum() const;
 
   std::string& spheroid();
+  const std::string& spheroid() const;
   double& semimajor_axis();
+  const double& semimajor_axis() const;
   double& inverse_flattening();
+  const double& inverse_flattening() const;
 
 private:
 
