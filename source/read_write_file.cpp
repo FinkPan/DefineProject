@@ -174,10 +174,10 @@ void ReadWriteFile::ReadCoordinateSystem(
 int ReadWriteFile::ReNameTiffFiles(
     const QStringList& filelist,
     const QString& output_dir,
-    const CoordinateSystemItem* item)
+    const GeographicCoordinateSystemItem* gcs_item,
+    const ProjectedCoordinateSystemItem* pcs_item)
 {
-  if (item->item_type() == CoordinateSystemItem::FOLDER_OPEN ||
-      item->item_type() == CoordinateSystemItem::FOLDER_CLOSE)
+  if (gcs_item == nullptr)
   {
     return -1;
   }
@@ -195,6 +195,11 @@ int ReadWriteFile::ReNameTiffFiles(
     if(output_dir.isEmpty())
     {
       poDataset = (GDALDataset *)GDALOpen(file.toStdString().c_str(),GA_Update);
+      if(poDataset == NULL)
+      {
+        false_files.append(file);
+        break;
+      }
     }
     else
     {
@@ -206,7 +211,7 @@ int ReadWriteFile::ReNameTiffFiles(
         break;
       }
       poDataset_dummy =
-        poDriver->CreateCopy("re_demo.tif",poDataset,FALSE,NULL,NULL,NULL);
+        poDriver->CreateCopy(file.toStdString().c_str(),poDataset,FALSE,NULL,NULL,NULL);
       if(poDataset_dummy == NULL)
       {
         false_files.append(file);
@@ -214,55 +219,60 @@ int ReadWriteFile::ReNameTiffFiles(
       }
     }
 
-    if(poDataset == NULL)
-    {
-      false_files.append(file);
-      break;
-    }
 
     //poDataset->GetGeoTransform(dfGeoTransform);
 
     OGRSpatialReference oSRS;
     char *pszSRS_WKT = NULL;
 
-    if (item->item_type() == CoordinateSystemItem::GEOGRAPHIC_COORDINATE_SYSTEM)
-    {
-      const GeographicCoordinateSystemItem* gcs_item =
-        dynamic_cast<const GeographicCoordinateSystemItem* >(item);
+    oSRS.SetGeogCS(
+      gcs_item->item_name().toString().toStdString().c_str(),
+      gcs_item->datum().c_str(),
+      gcs_item->spheroid().c_str(),
+      gcs_item->semimajor_axis(),
+      gcs_item->inverse_flattening(),
+      gcs_item->prime_meridian().c_str(),
+      gcs_item->prime_meridian_offset(),
+      gcs_item->angular_unit().c_str(),
+      gcs_item->radians_per_unit());
 
-      oSRS.SetGeogCS(
-        gcs_item->item_name().toString().toStdString().c_str(),
-        gcs_item->datum().c_str(),
-        gcs_item->spheroid().c_str(),
-        gcs_item->semimajor_axis(),
-        gcs_item->inverse_flattening(),
-        gcs_item->prime_meridian().c_str(),
-        gcs_item->prime_meridian_offset(),
-        gcs_item->angular_unit().c_str(),
-        gcs_item->radians_per_unit());
+    if (pcs_item != nullptr)
+    {
+      oSRS.SetProjCS(pcs_item->item_name().toString().toStdString().c_str());
+      oSRS.SetUTM(36);
+
+      oSRS.SetProjParm("latitude_of_origin",pcs_item->latitude_of_origin());
+      oSRS.SetProjParm("central_meridian",pcs_item->central_meridian());
+      oSRS.SetProjParm("scale_factor",pcs_item->scale_factor());
+      oSRS.SetProjParm("false_easting",pcs_item->false_easting());
+      oSRS.SetProjParm("false_northing",pcs_item->false_northing());
+    }
+    
+    oSRS.exportToWkt(&pszSRS_WKT);
+
+    if(output_dir.isEmpty())
+    {
+      CPLErr re2 = poDataset->SetProjection(pszSRS_WKT);
+      if (re2 == CE_Failure)
+      {
+        false_files.append(file);
+        std::cout << "SetProjection Error.\n";
+      }
     }
     else
     {
-      const ProjectedCoordinateSystemItem* pcs_item =
-        dynamic_cast<const ProjectedCoordinateSystemItem*>(item);
-
-      oSRS.SetProjCS("CGCS2000_3_Degree_GK_Zone_36");
-      oSRS.SetUTM(36);
-
-      oSRS.SetProjParm("latitude_of_origin",0.0);
-      oSRS.SetProjParm("central_meridian",108.0);
-      oSRS.SetProjParm("scale_factor",1.0);
-      oSRS.SetProjParm("false_easting",36500000.0);
-      oSRS.SetProjParm("false_northing",0.0);
-
+      CPLErr re2 = poDataset_dummy->SetProjection(pszSRS_WKT);
+      if(re2 == CE_Failure)
+      {
+        false_files.append(file);
+        std::cout << "SetProjection Error.\n";
+      }
     }
 
-    oSRS.exportToWkt(&pszSRS_WKT);
-    CPLErr re2 = poDataset->SetProjection(pszSRS_WKT);
     CPLFree(pszSRS_WKT);
 
     GDALClose((GDALDatasetH)poDataset);
-
+    GDALClose((GDALDatasetH)poDataset_dummy)
 
   }
 

@@ -8,7 +8,9 @@
 #include "cpl_conv.h"
 #include <ogr_spatialref.h>
 
-#include "coordinate_system_item.hpp"
+//#include "coordinate_system_item.hpp"
+#include "geographic_coordinate_system_item.hpp"
+#include "projected_coordinate_system_item.hpp"
 
 #include <boost/property_tree/ptree.hpp> 
 #include <boost/property_tree/xml_parser.hpp>
@@ -25,7 +27,8 @@ public:
   static int ReNameTiffFiles(
     const QStringList& filelist,
     const QString& output_dir,
-    const CoordinateSystemItem* item);
+    const GeographicCoordinateSystemItem* gcs_item,
+    const ProjectedCoordinateSystemItem* pcs_item = nullptr);
 
 protected:
 private:

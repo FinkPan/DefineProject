@@ -11,6 +11,7 @@
 #include <QTextEdit>
 #include <QScrollBar>
 #include <QFileDialog>
+#include <QMessageBox>
 
 MainWindow::MainWindow(QWidget *parent):
 QWidget(parent),
@@ -49,6 +50,8 @@ QWidget(parent),
 
   ui->pushButton_output->setDisabled(true);
   ui->lineEdit_output->setDisabled(true);
+  ui->lineEdit_output->setReadOnly(true);
+  ui->lineEdit_input->setReadOnly(true);
 
   ui->checkBox->setChecked(true);
 
@@ -112,14 +115,38 @@ void MainWindow::SetText(const QModelIndex &index)
 
 int MainWindow::OnPushButtonOk()
 {
+  if (input_files_.isEmpty())
+  {
+    QMessageBox::warning(this,tr("Waring"),
+                              tr("input tif file is empty."),
+                               QMessageBox::Ok);
+    return -1;
+  }
+
   const QModelIndex index = item_selection_model_->currentIndex();
   const CoordinateSystemModel *model = 
     dynamic_cast<const CoordinateSystemModel *>(index.model());
   CoordinateSystemItem *item = model->getItem(index);
 
-   ReadWriteFile::ReNameTiffFiles(input_files_,out_dir_,item);
-
-//   ui->textEdit->setText(item->Text());
+  if (item->item_type() == CoordinateSystemItem::GEOGRAPHIC_COORDINATE_SYSTEM)
+  {
+    const GeographicCoordinateSystemItem* gcs_item =
+      dynamic_cast<const GeographicCoordinateSystemItem*>(item);
+    ReadWriteFile::ReNameTiffFiles(input_files_,out_dir_,gcs_item);
+  }
+  else if (item->item_type() == CoordinateSystemItem::PROJECTED_COORDINATE_SYSTEM)
+  {
+    const ProjectedCoordinateSystemItem* pcs_item =
+      dynamic_cast<const ProjectedCoordinateSystemItem*>(item);
+    const GeographicCoordinateSystemItem* gcs_item =
+      dynamic_cast<GeographicCoordinateSystemItem*>(
+      model->getItem(pcs_item->gcs_wkid()));
+    ReadWriteFile::ReNameTiffFiles(input_files_,out_dir_,gcs_item,pcs_item);
+  }
+  else
+  {
+    ui->textEdit->setText(item->Text() + tr(" can't write."));
+  }
 
   return 0;
 }
@@ -130,13 +157,8 @@ int MainWindow::OnPushButtonInput()
                         this,
                         "Select one or more files to open",
                         "/home",
-                        "Tiff Images (*.tif *.tiff)");
+                        "Tiff Images (*.tif *.tiff)");  
 
-  if (input_files_.isEmpty())
-  {
-    return -1;
-  }
-  
   QString file;
   for(auto &iter : input_files_)
   {
