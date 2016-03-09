@@ -16,14 +16,23 @@ public:
   QString Text();
 
   int& gcs_wkid();
+  const int& gcs_wkid() const;
   std::string& projection();
+  const std::string& projection() const;
   double& false_easting();
+  const double& false_easting() const;
   double& false_northing();
+  const double& false_northing() const;
   double& central_meridian();
+  const double& central_meridian() const;
   double& scale_factor();
+  const double& scale_factor() const;
   double& latitude_of_origin();
+  const double& latitude_of_origin() const;
   std::string& linear_unit_name();
+  const std::string& linear_unit_name() const;
   double& linear_unit();
+  const double& linear_unit() const;
 
 private:
   int gcs_wkid_;

@@ -27,7 +27,15 @@ int& ProjectedCoordinateSystemItem::gcs_wkid()
 {
   return gcs_wkid_;
 }
+const int& ProjectedCoordinateSystemItem::gcs_wkid() const
+{
+  return gcs_wkid_;
+}
 std::string& ProjectedCoordinateSystemItem::projection()
+{
+  return projection_;
+}
+const std::string& ProjectedCoordinateSystemItem::projection() const
 {
   return projection_;
 }
@@ -35,7 +43,15 @@ double& ProjectedCoordinateSystemItem::false_easting()
 {
   return false_easting_;
 }
+const double& ProjectedCoordinateSystemItem::false_easting() const
+{
+  return false_easting_;
+}
 double& ProjectedCoordinateSystemItem::false_northing()
+{
+  return false_northing_;
+}
+const double& ProjectedCoordinateSystemItem::false_northing() const
 {
   return false_northing_;
 }
@@ -43,7 +59,15 @@ double& ProjectedCoordinateSystemItem::central_meridian()
 {
   return central_meridian_;
 }
+const double& ProjectedCoordinateSystemItem::central_meridian() const
+{
+  return central_meridian_;
+}
 double& ProjectedCoordinateSystemItem::scale_factor()
+{
+  return scale_factor_;
+}
+const double& ProjectedCoordinateSystemItem::scale_factor() const
 {
   return scale_factor_;
 }
@@ -51,11 +75,23 @@ double& ProjectedCoordinateSystemItem::latitude_of_origin()
 {
   return latitude_of_origin_;
 }
+const double& ProjectedCoordinateSystemItem::latitude_of_origin() const
+{
+  return latitude_of_origin_;
+}
 std::string& ProjectedCoordinateSystemItem::linear_unit_name()
 {
   return linear_unit_name_;
 }
+const std::string& ProjectedCoordinateSystemItem::linear_unit_name() const
+{
+  return linear_unit_name_;
+}
 double& ProjectedCoordinateSystemItem::linear_unit()
+{
+  return linear_unit_;
+}
+const double& ProjectedCoordinateSystemItem::linear_unit() const
 {
   return linear_unit_;
 }
