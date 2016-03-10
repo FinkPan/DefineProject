@@ -211,7 +211,8 @@ int ReadWriteFile::ReNameTiffFiles(
         break;
       }
       poDataset_dummy =
-        poDriver->CreateCopy(file.toStdString().c_str(),poDataset,FALSE,NULL,NULL,NULL);
+        poDriver->CreateCopy(file.toStdString().c_str(),
+          poDataset,FALSE,NULL,NULL,NULL);
       if(poDataset_dummy == NULL)
       {
         false_files.append(file);
@@ -239,7 +240,7 @@ int ReadWriteFile::ReNameTiffFiles(
     if (pcs_item != nullptr)
     {
       oSRS.SetProjCS(pcs_item->item_name().toString().toStdString().c_str());
-      oSRS.SetUTM(36);
+      oSRS.SetProjection(pcs_item->projection().c_str());
 
       oSRS.SetProjParm("latitude_of_origin",pcs_item->latitude_of_origin());
       oSRS.SetProjParm("central_meridian",pcs_item->central_meridian());
@@ -249,7 +250,6 @@ int ReadWriteFile::ReNameTiffFiles(
     }
     
     oSRS.exportToWkt(&pszSRS_WKT);
-
     if(output_dir.isEmpty())
     {
       CPLErr re2 = poDataset->SetProjection(pszSRS_WKT);
@@ -272,7 +272,7 @@ int ReadWriteFile::ReNameTiffFiles(
     CPLFree(pszSRS_WKT);
 
     GDALClose((GDALDatasetH)poDataset);
-    GDALClose((GDALDatasetH)poDataset_dummy)
+    GDALClose((GDALDatasetH)poDataset_dummy);
 
   }
 
