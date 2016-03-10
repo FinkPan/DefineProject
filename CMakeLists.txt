@@ -7,13 +7,13 @@ include_directories("include")
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
 
 #GDAL
-set(GDAL_INSTALL_PATH "" CACHE PATH "GDAL_PATH")
-set(GDAL_LIBS "${GDAL_INSTALL_PATH}/lib/gdal_i.lib")
-include_directories("${GDAL_INSTALL_PATH}/include")
+find_package(GDAL REQUIRED)
+include_directories(GDAL_INCLUDE_DIR)
 
 #BOOST
-set(BOOST_INSTALL_PATH "" CACHE PATH "BOOST_PATH")
-include_directories("${BOOST_INSTALL_PATH}/include")
+Set (Boost_NO_BOOST_CMAKE ON)
+find_package(Boost 1.60.0 REQUIRED)
+include_directories(Boost_INCLUDE_DIRS)
 
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
@@ -43,6 +43,6 @@ set(source_FILES
 
 add_executable(DefineProject ${source_FILES} ${ui_FILES} ${re_FILES})
 
-target_link_libraries(DefineProject Qt5::Widgets "${GDAL_LIBS}")
+target_link_libraries(DefineProject Qt5::Widgets "${GDAL_LIBRARY}")
 
 
