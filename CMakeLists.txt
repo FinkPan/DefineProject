@@ -8,12 +8,12 @@ include_directories(${CMAKE_CURRENT_BINARY_DIR})
 
 #GDAL
 find_package(GDAL REQUIRED)
-include_directories(GDAL_INCLUDE_DIR)
+include_directories(${GDAL_INCLUDE_DIR})
 
 #BOOST
 Set (Boost_NO_BOOST_CMAKE ON)
 find_package(Boost 1.60.0 REQUIRED)
-include_directories(Boost_INCLUDE_DIRS)
+include_directories(${Boost_INCLUDE_DIRS})
 
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
