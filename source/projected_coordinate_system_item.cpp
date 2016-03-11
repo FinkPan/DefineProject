@@ -3,10 +3,10 @@
 #include "projected_coordinate_system_item.hpp"
 
 ProjectedCoordinateSystemItem::ProjectedCoordinateSystemItem(
-QVariant item_name,
+  QVariant item_name,
   ItemType item_type,
   CoordinateSystemItem *parent_item)
-  : CoordinateSystemItem(item_name,item_type,parent_item)
+  : GeographicCoordinateSystemItem(item_name,item_type,parent_item)
   , gcs_wkid_(0)
   , projection_("")
   , false_easting_(0.0)
@@ -117,6 +117,7 @@ Linear Unit: %9 (%10)"
 .arg(central_meridian_)
 .arg(scale_factor_)
 .arg(latitude_of_origin_)
-.arg(QString::fromStdString(linear_unit_name_)).arg(linear_unit_);
+.arg(QString::fromStdString(linear_unit_name_)).arg(linear_unit_) + "\n\n" +
+GeographicCoordinateSystemItem::Text();
 
 }

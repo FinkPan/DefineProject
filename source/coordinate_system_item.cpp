@@ -3,14 +3,15 @@
 #include "coordinate_system_item.hpp"
 
 CoordinateSystemItem::CoordinateSystemItem(
-  QVariant item_name,
+  const QString& wkt,
   ItemType item_type,
   CoordinateSystemItem *parent_item)
-  : wkid_(-1)
-  , item_name_(item_name)
-  , item_type_(item_type)
+  : item_type_(item_type)
   , parent_item_(parent_item)
 {
+  QByteArray ba_wkt = wkt.toLatin1();
+  char *c_wkt = ba_wkt.data();
+  oSRS_.importFromWkt(&c_wkt);
   if(parent_item_ != nullptr)
     parent_item_->add_child_item(this);
 }
@@ -37,9 +38,9 @@ int CoordinateSystemItem::childCount() const
 
 int CoordinateSystemItem::columnCount() const
 {
-  if (item_name_.isNull())
-    return 0;
-  else
+//   if (item_name_.isNull())
+//     return 0;
+//   else
     return 1;
 }
 
@@ -67,14 +68,23 @@ CoordinateSystemItem* CoordinateSystemItem::child_item(int i) const
   return nullptr;
 }
 
-QVariant CoordinateSystemItem::item_name() const
-{
-  return item_name_;
-}
 
 void CoordinateSystemItem::set_item_type(ItemType item_type)
 {
   item_type_ = item_type;
+}
+
+QVariant CoordinateSystemItem::item_name() const
+{
+  if(oSRS_.IsGeographic())
+  {
+    return QVariant(QString(oSRS_.GetAttrValue("GEOGCS")));
+  }
+  else if (oSRS_.IsProjected())
+  {
+    return QVariant(QString(oSRS_.GetAttrValue("PROJCS")));
+  }
+  return QVariant();
 }
 
 CoordinateSystemItem::ItemType CoordinateSystemItem::item_type() const
@@ -82,13 +92,10 @@ CoordinateSystemItem::ItemType CoordinateSystemItem::item_type() const
   return item_type_;
 }
 
-int& CoordinateSystemItem::wkid()
-{
-  return wkid_;
-}
-
 QString CoordinateSystemItem::Text()
 {
-  return item_name_.toString();
+//   return item_name_.toString();
+  return QString();
+  
 }
 

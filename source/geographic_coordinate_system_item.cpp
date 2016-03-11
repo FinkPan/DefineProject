@@ -3,7 +3,7 @@
 #include "geographic_coordinate_system_item.hpp"
 
 GeographicCoordinateSystemItem::GeographicCoordinateSystemItem(
-      QVariant item_name,
+    QVariant item_name,
     ItemType item_type,
     CoordinateSystemItem *parent_item)
   : CoordinateSystemItem(item_name,item_type,parent_item)
@@ -110,5 +110,10 @@ Datum: %7\n\
 .arg(QString::fromStdString(spheroid_))
 .arg(semimajor_axis_)
 .arg(inverse_flattening_);
+
+}
+
+void ImportFromWKT(const std::string& wkt)
+{
 
 }

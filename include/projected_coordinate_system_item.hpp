@@ -2,9 +2,9 @@
 #define _DEFINEPROJECT_Projected_COORDINATE_SYSTEM_ITEM_HPP_
 
 #include <string>
-#include "coordinate_system_item.hpp"
+#include "geographic_coordinate_system_item.hpp"
 
-class ProjectedCoordinateSystemItem : public CoordinateSystemItem
+class ProjectedCoordinateSystemItem : public GeographicCoordinateSystemItem
 {
 public:
   explicit ProjectedCoordinateSystemItem(

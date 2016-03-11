@@ -9,12 +9,12 @@ class GeographicCoordinateSystemItem : public CoordinateSystemItem
 {
 public:
   explicit GeographicCoordinateSystemItem(
-    QVariant item_name,
+    const QString& wkt,
     ItemType item_type,
     CoordinateSystemItem *parent_item = nullptr);
   ~GeographicCoordinateSystemItem();
 
-  QString Text();
+  virtual QString Text();
 
   std::string& angular_unit();
   const std::string& angular_unit() const;
@@ -36,6 +36,8 @@ public:
   const double& semimajor_axis() const;
   double& inverse_flattening();
   const double& inverse_flattening() const;
+
+  void ImportFromWKT(const std::string& wkt);
 
 private:
 

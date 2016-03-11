@@ -33,10 +33,10 @@ set(source_FILES
       source/coordinate_system_model.cpp
       include/coordinate_system_item.hpp
       source/coordinate_system_item.cpp
-      include/geographic_coordinate_system_item.hpp
-      source/geographic_coordinate_system_item.cpp
-      include/projected_coordinate_system_item.hpp
-      source/projected_coordinate_system_item.cpp
+      #include/geographic_coordinate_system_item.hpp
+      #source/geographic_coordinate_system_item.cpp
+      #include/projected_coordinate_system_item.hpp
+      #source/projected_coordinate_system_item.cpp
       include/read_write_file.hpp
       source/read_write_file.cpp
     )

@@ -85,29 +85,29 @@ void MainWindow::SetText(const QModelIndex &index)
   CoordinateSystemModel *model = ( CoordinateSystemModel *)index.model();
   CoordinateSystemItem *item = model->getItem(index);
 
-  if(item->item_type() == CoordinateSystemItem::GEOGRAPHIC_COORDINATE_SYSTEM)
-  {
+//   if(item->item_type() == CoordinateSystemItem::GEOGRAPHIC_COORDINATE_SYSTEM)
+//   {
     ui->textEdit->setText(item->Text());
-  }
-  else if (item->item_type() == CoordinateSystemItem::PROJECTED_COORDINATE_SYSTEM)
-  {
-    ui->textEdit->setText(item->Text());
-    ProjectedCoordinateSystemItem* pcs =
-      dynamic_cast<ProjectedCoordinateSystemItem*>(item);
-
-    int gcs_wkid = pcs->gcs_wkid();
-
-    CoordinateSystemItem* gcs = model->getItem(gcs_wkid);
-    if(gcs != nullptr)
-    {
-      ui->textEdit->append("\nGeographic Coordinate System:");
-      ui->textEdit->append(gcs->Text());
-    }
-    else
-    {
-      ui->textEdit->append("\nWARNING: can't find Geographic Coordinate System!\n");
-    }
-  }
+//   }
+//   else if (item->item_type() == CoordinateSystemItem::PROJECTED_COORDINATE_SYSTEM)
+//   {
+//     ui->textEdit->setText(item->Text());
+//     ProjectedCoordinateSystemItem* pcs =
+//       dynamic_cast<ProjectedCoordinateSystemItem*>(item);
+// 
+//     int gcs_wkid = pcs->gcs_wkid();
+// 
+//     CoordinateSystemItem* gcs = model->getItem(gcs_wkid);
+//     if(gcs != nullptr)
+//     {
+//       ui->textEdit->append("\nGeographic Coordinate System:");
+//       ui->textEdit->append(gcs->Text());
+//     }
+//     else
+//     {
+//       ui->textEdit->append("\nWARNING: can't find Geographic Coordinate System!\n");
+//     }
+//   }
   QScrollBar *sb = ui->textEdit->verticalScrollBar();
   sb->setValue(sb->minimum());
 
@@ -123,30 +123,41 @@ int MainWindow::OnPushButtonOk()
     return -1;
   }
 
+//   //debug
+//   ReadWriteFile::ReadCoordinateSystemWriteXML(input_files_,out_dir_);
+//   return 2;
+
   const QModelIndex index = item_selection_model_->currentIndex();
   const CoordinateSystemModel *model = 
     dynamic_cast<const CoordinateSystemModel *>(index.model());
   CoordinateSystemItem *item = model->getItem(index);
 
-  if (item->item_type() == CoordinateSystemItem::GEOGRAPHIC_COORDINATE_SYSTEM)
+  int re = -1;
+
+//   if (item->item_type() == CoordinateSystemItem::GEOGRAPHIC_COORDINATE_SYSTEM)
+//   {
+//     const GeographicCoordinateSystemItem* gcs_item =
+//       dynamic_cast<const GeographicCoordinateSystemItem*>(item);
+//     re = ReadWriteFile::ReNameTiffFiles(input_files_,out_dir_,gcs_item);
+//   }
+//   else if (item->item_type() == CoordinateSystemItem::PROJECTED_COORDINATE_SYSTEM)
+//   {
+//     const ProjectedCoordinateSystemItem* pcs_item =
+//       dynamic_cast<const ProjectedCoordinateSystemItem*>(item);
+//     const GeographicCoordinateSystemItem* gcs_item =
+//       dynamic_cast<GeographicCoordinateSystemItem*>(
+//       model->getItem(pcs_item->gcs_wkid()));
+//     re = ReadWriteFile::ReNameTiffFiles(input_files_,out_dir_,gcs_item,pcs_item);
+//   }
+  
+  if(re == -1)
   {
-    const GeographicCoordinateSystemItem* gcs_item =
-      dynamic_cast<const GeographicCoordinateSystemItem*>(item);
-    ReadWriteFile::ReNameTiffFiles(input_files_,out_dir_,gcs_item);
+    ui->textEdit->setText(item->Text() + tr("Error write files."));
+    return -1;
   }
-  else if (item->item_type() == CoordinateSystemItem::PROJECTED_COORDINATE_SYSTEM)
-  {
-    const ProjectedCoordinateSystemItem* pcs_item =
-      dynamic_cast<const ProjectedCoordinateSystemItem*>(item);
-    const GeographicCoordinateSystemItem* gcs_item =
-      dynamic_cast<GeographicCoordinateSystemItem*>(
-      model->getItem(pcs_item->gcs_wkid()));
-    ReadWriteFile::ReNameTiffFiles(input_files_,out_dir_,gcs_item,pcs_item);
-  }
-  else
-  {
-    ui->textEdit->setText(item->Text() + tr(" can't write."));
-  }
+
+  QMessageBox::information(this,tr("information"),
+                          tr("Write coordinate complate."));
 
   return 0;
 }
@@ -157,7 +168,8 @@ int MainWindow::OnPushButtonInput()
                         this,
                         "Select one or more files to open",
                         "/home",
-                        "Tiff Images (*.tif *.tiff)");  
+                        "Tiff Images (*.tif *.tiff);;\
+                         prj file (*.prj)");  
 
   QString file;
   for(auto &iter : input_files_)
