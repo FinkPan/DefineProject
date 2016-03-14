@@ -1,6 +1,7 @@
 ﻿#include <iostream>
 #include <QString>
 #include <QObject>
+#include <QFileInfo>
 #include <boost/foreach.hpp>
 
 #include "read_write_file.hpp"
@@ -184,125 +185,132 @@ void ReadWriteFile::ReadCoordinateSystem(
 //   }
 // }
 
-// int ReadWriteFile::ReNameTiffFiles(
-//     const QStringList& filelist,
-//     const QString& output_dir,
-//     const GeographicCoordinateSystemItem* gcs_item,
-//     const ProjectedCoordinateSystemItem* pcs_item)
-// {
-//   if (gcs_item == nullptr)
-//   {
-//     return -1;
-//   }
-// 
-//   QStringList false_files;
-//   GDALAllRegister();
-// 
-//   for(const auto& file : filelist)
-//   {
-//     GDALDataset *poDataset = NULL;
-//     GDALDataset *poDataset_dummy = NULL;
-//     GDALDriver *poDriver;
+int ReadWriteFile::ReNameTiffFiles(
+    const QStringList& filelist,
+    const QString& output_dir,
+    const OGRSpatialReference& oSRS)
+{
+  QStringList false_files;
+  GDALAllRegister();  
+  GDALDriver *poDriver;
+
+  if (!output_dir.isEmpty())
+  {
+    poDriver = GetGDALDriverManager()->GetDriverByName("GTiff");
+    if(poDriver == NULL)
+    {
+      return -3;
+    }
+  }
+  
+
+  for(const auto& file : filelist)
+  {
+    GDALDataset *poDataset = NULL;
+    GDALDataset *poDataset_dummy = NULL;
 //     double  dfGeoTransform[6];
-// 
-//     if(output_dir.isEmpty())
-//     {
-//       poDataset = (GDALDataset *)GDALOpen(file.toStdString().c_str(),GA_Update);
-//       if(poDataset == NULL)
-//       {
-//         false_files.append(file);
-//         break;
-//       }
-//     }
-//     else
-//     {
-//       poDataset = (GDALDataset *)GDALOpen(file.toStdString().c_str(),GA_ReadOnly);
-//       poDriver = GetGDALDriverManager()->GetDriverByName("GTiff");
-//       if(poDriver == NULL)
-//       {
-//         false_files.append(file);
-//         break;
-//       }
-//       poDataset_dummy =
-//         poDriver->CreateCopy(file.toStdString().c_str(),
-//           poDataset,FALSE,NULL,NULL,NULL);
-//       if(poDataset_dummy == NULL)
-//       {
-//         false_files.append(file);
-//         break;
-//       }
-//     }
-// 
-// 
-//     //poDataset->GetGeoTransform(dfGeoTransform);
-// 
-//     OGRSpatialReference oSRS;
-//     char *pszSRS_WKT = NULL;
-// 
-//     oSRS.SetGeogCS(
-//       gcs_item->item_name().toString().toStdString().c_str(),
-//       gcs_item->datum().c_str(),
-//       gcs_item->spheroid().c_str(),
-//       gcs_item->semimajor_axis(),
-//       gcs_item->inverse_flattening(),
-//       gcs_item->prime_meridian().c_str(),
-//       gcs_item->prime_meridian_offset(),
-//       gcs_item->angular_unit().c_str(),
-//       gcs_item->radians_per_unit());
-// 
-//     if (pcs_item != nullptr)
-//     {
-//       oSRS.SetProjCS(pcs_item->item_name().toString().toStdString().c_str());
-//       oSRS.SetProjection(pcs_item->projection().c_str());
-// 
-//       oSRS.SetProjParm("latitude_of_origin",pcs_item->latitude_of_origin());
-//       oSRS.SetProjParm("central_meridian",pcs_item->central_meridian());
-//       oSRS.SetProjParm("scale_factor",pcs_item->scale_factor());
-//       oSRS.SetProjParm("false_easting",pcs_item->false_easting());
-//       oSRS.SetProjParm("false_northing",pcs_item->false_northing());
-//     }
-//     
+
+    if(output_dir.isEmpty())
+    {
+      poDataset = (GDALDataset *)GDALOpen(file.toStdString().c_str(),GA_Update);
+      if(poDataset == NULL)
+      {
+        false_files.append(file);
+        break;
+      }
+    }
+    else
+    {
+      QFileInfo in_file_info(file);
+      QString input_dir = in_file_info.absolutePath();
+      if (input_dir == output_dir)
+      {
+        return -2;
+      }
+      QString out_file = output_dir + "/" + in_file_info.fileName();
+
+      poDataset = (GDALDataset *)GDALOpen(file.toStdString().c_str(),GA_ReadOnly);
+      
+      poDataset_dummy = poDriver->CreateCopy(
+        out_file.toStdString().c_str(),poDataset,FALSE,NULL,NULL,NULL);
+      if(poDataset_dummy == NULL)
+      {
+        false_files.append(file);
+        break;
+      }
+    }
+
+    //poDataset->GetGeoTransform(dfGeoTransform);
+
+    OGRSpatialReference osrs_temp;
+    char *pszSRS_WKT = NULL;
+
+    if (oSRS.IsProjected())
+    {
+      osrs_temp.SetProjCS(oSRS.GetAttrValue("PROJCS"));
+      osrs_temp.SetProjection(oSRS.GetAttrValue("PROJECTION"));
+
+      osrs_temp.SetProjParm("latitude_of_origin",oSRS.GetProjParm(SRS_PP_LATITUDE_OF_ORIGIN));
+      osrs_temp.SetProjParm("central_meridian",oSRS.GetProjParm(SRS_PP_CENTRAL_MERIDIAN));
+      osrs_temp.SetProjParm("scale_factor",oSRS.GetProjParm(SRS_PP_SCALE_FACTOR));
+      osrs_temp.SetProjParm("false_easting",oSRS.GetProjParm(SRS_PP_FALSE_EASTING));
+      osrs_temp.SetProjParm("false_northing",oSRS.GetProjParm(SRS_PP_FALSE_NORTHING));
+    }
+
+    char* angular_unit = nullptr;
+    double angular_unit_value = oSRS.GetAngularUnits(&angular_unit);
+    char* prime_meridian = nullptr;
+    double prime_meridian_value = oSRS.GetPrimeMeridian(&prime_meridian);
+    
+    osrs_temp.SetGeogCS(
+      oSRS.GetAttrValue("GEOGCS"),
+      oSRS.GetAttrValue("DATUM"),
+      oSRS.GetAttrValue("SPHEROID"),
+      oSRS.GetSemiMajor(),
+      oSRS.GetInvFlattening(),
+      prime_meridian,
+      prime_meridian_value,
+      angular_unit,
+      angular_unit_value);
+    
+    osrs_temp.exportToWkt(&pszSRS_WKT);
 //     oSRS.exportToWkt(&pszSRS_WKT);
-// 
+
 //     std::cout << "=======================\n";
 //     std::cout << pszSRS_WKT;
 //     std::cout << "\n=======================\n";
-// 
-//     char* temp = "PROJCS[\"Beijing_1954_3_Degree_GK_CM_105E\",GEOGCS[\"GCS_Beijing_1954\",DATUM[\"D_Beijing_1954\",SPHEROID[\"Krasovsky_1940\",6378245.0,298.3]],PRIMEM[\"Greenwich\",0.0],UNIT[\"Degree\",0.0174532925199433]],PROJECTION[\"Gauss_Kruger\"],PARAMETER[\"False_Easting\",500000.0],PARAMETER[\"False_Northing\",0.0],PARAMETER[\"Central_Meridian\",105.0],PARAMETER[\"Scale_Factor\",1.0],PARAMETER[\"Latitude_Of_Origin\",0.0],UNIT[\"Meter\",1.0]]";
-// 
-// 
-// 
-//     if(output_dir.isEmpty())
-//     {
-//       CPLErr re2 = poDataset->SetProjection(temp);
-//       if (re2 == CE_Failure)
-//       {
-//         false_files.append(file);
-//         std::cout << "SetProjection Error.\n";
-//       }
-//     }
-//     else
-//     {
-//       CPLErr re2 = poDataset_dummy->SetProjection(pszSRS_WKT);
-//       if(re2 == CE_Failure)
-//       {
-//         false_files.append(file);
-//         std::cout << "SetProjection Error.\n";
-//       }
-//     }
-// 
-//     CPLFree(pszSRS_WKT);
-// 
-//     if (poDataset != NULL)
-//       GDALClose((GDALDatasetH)poDataset);
-//     
-//     if (poDataset_dummy != NULL)
-//       GDALClose((GDALDatasetH)poDataset_dummy);
-// 
-//   }
-// 
-//   return 0;
-// }
+
+    if(output_dir.isEmpty())
+    {
+      CPLErr re2 = poDataset->SetProjection(pszSRS_WKT);
+      if (re2 == CE_Failure)
+      {
+        false_files.append(file);
+        std::cout << "SetProjection Error.\n";
+      }
+    }
+    else
+    {
+      CPLErr re2 = poDataset_dummy->SetProjection(pszSRS_WKT);
+      if(re2 == CE_Failure)
+      {
+        false_files.append(file);
+        std::cout << "SetProjection Error.\n";
+      }
+    }
+
+    CPLFree(pszSRS_WKT);
+
+    if (poDataset != NULL)
+      GDALClose((GDALDatasetH)poDataset);
+    
+    if (poDataset_dummy != NULL)
+      GDALClose((GDALDatasetH)poDataset_dummy);
+
+  }
+
+  return 0;
+}
 
 
 int ReadWriteFile::ReadCoordinateSystemWriteXML(

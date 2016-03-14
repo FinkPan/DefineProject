@@ -40,9 +40,15 @@ public:
   CoordinateSystemItem* child_item(int i) const;
   void add_child_item(CoordinateSystemItem* item);
 
-  CoordinateSystemItem *child(int row);
+  CoordinateSystemItem* child(int row);
+  const OGRSpatialReference& oSRS() const;
 
 private:
+  QString GCSText() const;
+  QString PCSText() const;
+
+private:
+  QVariant item_name_;
   ItemType item_type_;
   CoordinateSystemItem *parent_item_;
   QList<CoordinateSystemItem*> child_items_;

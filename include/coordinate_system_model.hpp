@@ -37,14 +37,12 @@ public:
 
 private:
   CoordinateSystemItem *root_item_;
-  CoordinateSystemItem *gcs_item_;
-  CoordinateSystemItem *pcs_item_;
-  CoordinateSystemItem *pcs_gauss_kruger_item_;
+  CoordinateSystemItem *gcs_root_item_;
+  CoordinateSystemItem *pcs_root_item_;
   QIcon *item_icon_folder_clolse_;
   QIcon *item_icon_folder_open_;
   QIcon *item_icon_coordinate_system_;
-  QStringList pcs_projection_;
-  QMap<QString, CoordinateSystemItem*> item_map_;
+  QMap<QString, CoordinateSystemItem*> pcs_item_map_;
 };
 
 #endif

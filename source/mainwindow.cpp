@@ -123,36 +123,33 @@ int MainWindow::OnPushButtonOk()
     return -1;
   }
 
-//   //debug
-//   ReadWriteFile::ReadCoordinateSystemWriteXML(input_files_,out_dir_);
-//   return 2;
-
   const QModelIndex index = item_selection_model_->currentIndex();
   const CoordinateSystemModel *model = 
     dynamic_cast<const CoordinateSystemModel *>(index.model());
   CoordinateSystemItem *item = model->getItem(index);
 
+  if (item == nullptr)
+  {
+    return -1;
+  }
+  
   int re = -1;
 
-//   if (item->item_type() == CoordinateSystemItem::GEOGRAPHIC_COORDINATE_SYSTEM)
-//   {
-//     const GeographicCoordinateSystemItem* gcs_item =
-//       dynamic_cast<const GeographicCoordinateSystemItem*>(item);
-//     re = ReadWriteFile::ReNameTiffFiles(input_files_,out_dir_,gcs_item);
-//   }
-//   else if (item->item_type() == CoordinateSystemItem::PROJECTED_COORDINATE_SYSTEM)
-//   {
-//     const ProjectedCoordinateSystemItem* pcs_item =
-//       dynamic_cast<const ProjectedCoordinateSystemItem*>(item);
-//     const GeographicCoordinateSystemItem* gcs_item =
-//       dynamic_cast<GeographicCoordinateSystemItem*>(
-//       model->getItem(pcs_item->gcs_wkid()));
-//     re = ReadWriteFile::ReNameTiffFiles(input_files_,out_dir_,gcs_item,pcs_item);
-//   }
+  if (item->item_type() == CoordinateSystemItem::COORDINATE_SYSTEM)
+  {
+    re = ReadWriteFile::ReNameTiffFiles(input_files_,out_dir_,item->oSRS());
+  }
   
   if(re == -1)
   {
     ui->textEdit->setText(item->Text() + tr("Error write files."));
+    return -1;
+  }
+  else if(re == -2)
+  {
+    QMessageBox::warning(this,tr("Waring"),
+                          tr("input tif file path is the same with output file path."),
+                           QMessageBox::Ok);
     return -1;
   }
 
@@ -182,6 +179,7 @@ int MainWindow::OnPushButtonInput()
 
   return 0;
 }
+
 int MainWindow::OnPushButtonOutput()
 {
   out_dir_ = QFileDialog::getExistingDirectory(

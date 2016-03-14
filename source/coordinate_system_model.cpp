@@ -15,15 +15,12 @@ CoordinateSystemModel::CoordinateSystemModel(QObject *parent)
   item_icon_folder_open_       = new QIcon(":/folder_open");
   item_icon_coordinate_system_ = new QIcon(":/earth");
 
-  gcs_item_ = new CoordinateSystemItem(
+  gcs_root_item_ = new CoordinateSystemItem(
     tr("Geographic Coordinate System"),
     CoordinateSystemItem::FOLDER_CLOSE,root_item_);
-  pcs_item_ = new CoordinateSystemItem(
+  pcs_root_item_ = new CoordinateSystemItem(
     tr("Projected_coordinate_system"),
     CoordinateSystemItem::FOLDER_CLOSE,root_item_);
-  pcs_gauss_kruger_item_ = new CoordinateSystemItem(
-    tr("Gauss_Kruger"),
-    CoordinateSystemItem::FOLDER_CLOSE,pcs_item_);
 
   ReadWriteFile::ReadCoordinateSystem("coordinate_system.txt",*this);
 
@@ -155,11 +152,11 @@ CoordinateSystemItem* CoordinateSystemModel::getItem(const QModelIndex &index) c
 
 CoordinateSystemItem* CoordinateSystemModel::gcs_item() const
 {
-  return gcs_item_;
+  return gcs_root_item_;
 }
 CoordinateSystemItem* CoordinateSystemModel::pcs_item() const
 {
-  return pcs_item_;
+  return pcs_root_item_;
 }
 
 void CoordinateSystemModel::add_item(const QString& wkt)
@@ -174,28 +171,27 @@ void CoordinateSystemModel::add_item(const QString& wkt)
     QString t = QString(geogcs_name);
     CoordinateSystemItem* gcs_item =
       new CoordinateSystemItem(wkt,
-      CoordinateSystemItem::COORDINATE_SYSTEM,gcs_item_);
+      CoordinateSystemItem::COORDINATE_SYSTEM,gcs_root_item_);
 
   }
   else if(oSRS.IsProjected())
   {
-    QString name = QString(oSRS.GetAttrValue("GEOGCS"));
-    CoordinateSystemItem* gauss_kruger_item = nullptr;
+    QString gcs_folder_name = QString(oSRS.GetAttrValue("GEOGCS"));
 
-    if (item_map_.contains(name))
+    CoordinateSystemItem* pcs_item = nullptr;
+    if (pcs_item_map_.contains(gcs_folder_name))
     {
-      CoordinateSystemItem* name_item = item_map_[name];
+      pcs_item = pcs_item_map_[gcs_folder_name];
     }
     else
     {
-      CoordinateSystemItem* name_item =
-        new CoordinateSystemItem(name,
-        CoordinateSystemItem::COORDINATE_SYSTEM,pcs_gauss_kruger_item_);
-      item_map_.insert(name,name_item);
-      CoordinateSystemItem* item =
-        new CoordinateSystemItem(wkt,
-        CoordinateSystemItem::COORDINATE_SYSTEM,name_item);
+      pcs_item = new CoordinateSystemItem(gcs_folder_name,
+        CoordinateSystemItem::FOLDER_CLOSE,pcs_root_item_);
+      pcs_item_map_[gcs_folder_name] = pcs_item;
     }
+    CoordinateSystemItem* item = new CoordinateSystemItem(wkt,
+      CoordinateSystemItem::COORDINATE_SYSTEM,pcs_item);
+
   }
 
 }

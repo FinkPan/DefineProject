@@ -30,11 +30,10 @@ public:
 //     const std::string& filename,
 //     CoordinateSystemItem& root_item);
 
-//   static int ReNameTiffFiles(
-//     const QStringList& filelist,
-//     const QString& output_dir,
-//     const GeographicCoordinateSystemItem* gcs_item,
-//     const ProjectedCoordinateSystemItem* pcs_item = nullptr);
+  static int ReNameTiffFiles(
+    const QStringList& filelist,
+    const QString& output_dir,
+    const OGRSpatialReference& oSRS);
 
   //temp
   static int ReadCoordinateSystemWriteXML(
@@ -45,7 +44,7 @@ protected:
 private:
   int ReadTiffFile(
     const std::string& file_path, 
-    GDALDataset* poDataset,
+    GDALDataset *poDataset,
     bool read_only);
 };
 
